@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LC Index - Document Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .user-level-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 2;
+        }
+        
+        .main-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 3px solid #e9ecef;
+        }
+        
+        .main-tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            color: #495057;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .main-tab:hover {
+            background: #e9ecef;
+            color: #2c3e50;
+        }
+        
+        .main-tab.active {
+            background: white;
+            color: #2c3e50;
+            border-bottom-color: #667eea;
+        }
+        
+        .main-tab-content {
+            display: none;
+            padding: 30px;
+        }
+        
+        .main-tab-content.active {
+            display: block;
+        }
+        
+        /* Create Document Tab Styles */
+        .document-type-selector {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .document-type-selector h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .document-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .document-type-option {
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            background: white;
+        }
+        
+        .document-type-option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .document-type-option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        
+        .upload-section {
+            margin-bottom: 30px;
+        }
+        
+        .upload-section h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .file-upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            background: #fafafa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .file-upload-area:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .file-upload-area.dragover {
+            border-color: #667eea;
+            background: #e8f2ff;
+        }
+        
+        .file-upload-icon {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 16px;
+        }
+        
+        .header-configuration {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .header-configuration.active {
+            display: block;
+        }
+        
+        .header-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .header-item {
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            background: white;
+            position: relative;
+        }
+        
+        .header-item h4 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .header-action-btn {
+            padding: 5px 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .header-action-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .header-action-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .button-group {
+            margin: 20px 0;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            transform: translate(-50%, -50%);
+        }
+        
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        /* Document Types Tab Styles */
+        .document-types-section {
+            margin-bottom: 30px;
+        }
+        
+        .document-type-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .document-types-list {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .document-type-item {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .document-type-item:last-child {
+            border-bottom: none;
+        }
+        
+        .document-type-info h4 {
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        .document-type-info p {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .document-type-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn.edit {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .action-btn.toggle {
+            background: #28a745;
+            color: white;
+        }
+        
+        .action-btn.toggle.inactive {
+            background: #6c757d;
+        }
+        
+        .action-btn.delete {
+            background: #dc3545;
+            color: white;
+        }
+        
+        /* User Level Tabs */
+        .user-level-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .user-level-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: #495057;
+            transition: all 0.3s ease;
+        }
+        
+        .user-level-tab:hover {
+            background: #e9ecef;
+        }
+        
+        .user-level-tab.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .user-level-content {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .user-level-content.active {
+            display: block;
+        }
+        
+        /* Results Section */
+        .results-section {
+            margin-top: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .results-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .results-header h3 {
+            color: #2c3e50;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            max-height: 600px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .subtotal-row {
+            background-color: #e3f2fd !important;
+            font-weight: 600;
+        }
+        
+        .grand-total-row {
+            background-color: #c8e6c9 !important;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border: 1px solid #c3e6cb;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .main-tabs {
+                flex-direction: column;
+            }
+            
+            .main-tab-content {
+                padding: 20px;
+            }
+            
+            .document-type-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+            
+            .user-level-tabs {
+                flex-direction: column;
+            }
+        }
+        
+        /* Hidden elements */
+        #fileInput {
+            display: none;
+        }
+        
+        .selected-file {
+            margin-top: 15px;
+            padding: 10px;
+            background: #e8f5e8;
+            border-radius: 5px;
+            color: #2d5a2d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="user-level-indicator" id="userLevelIndicator">User Level: User</div>
+            <h1>LC Index</h1>
+            <p>Document Management & Processing System</p>
+        </div>
+        
+        <div class="main-tabs">
+            <div class="main-tab active" onclick="switchMainTab('create-document')">Create Document</div>
+            <div class="main-tab" onclick="switchMainTab('document-types')">Document Types</div>
+            <div class="main-tab" onclick="switchMainTab('user-management')" id="userManagementTab" style="display: none;">User Management</div>
+        </div>
+        
+        <!-- Create Document Tab -->
+        <div id="create-document-content" class="main-tab-content active">
+            <div class="document-type-selector">
+                <h3>Select Document Type</h3>
+                <div class="document-type-grid" id="documentTypeGrid">
+                    <div class="document-type-option" data-type="excel" onclick="selectDocumentType('excel')">
+                        <h4>📊 Excel Processing</h4>
+                        <p>Process Excel files with headers</p>
+                    </div>
+                    <div class="document-type-option" data-type="proforma" onclick="selectDocumentType('proforma')">
+                        <h4>📋 Pro forma Invoice</h4>
+                        <p>Generate proforma invoices</p>
+                    </div>
+                    <div class="document-type-option" data-type="lc" onclick="selectDocumentType('lc')">
+                        <h4>🏦 LC Document</h4>
+                        <p>Letter of Credit processing</p>
+                    </div>
+                    <div class="document-type-option" data-type="packing" onclick="selectDocumentType('packing')">
+                        <h4>📦 Packing List</h4>
+                        <p>Generate packing lists</p>
+                    </div>
+                    <div class="document-type-option" data-type="commercial" onclick="selectDocumentType('commercial')">
+                        <h4>🧾 Commercial Invoice</h4>
+                        <p>Create commercial invoices</p>
+                    </div>
+                    <div class="document-type-option" data-type="value" onclick="selectDocumentType('value')">
+                        <h4>💰 Value Sheet</h4>
+                        <p>Generate value sheets</p>
+                    </div>
+                    <div class="document-type-option" data-type="loading" onclick="selectDocumentType('loading')">
+                        <h4>🚢 Loading List</h4>
+                        <p>Create loading lists</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Excel Processing Section -->
+            <div id="excel-section" class="upload-section" style="display: none;">
+                <h3>Upload Excel File</h3>
+                <div class="file-upload-area" onclick="document.getElementById('fileInput').click()">
+                    <div class="file-upload-icon">📁</div>
+                    <div class="file-upload-text">Click to select Excel file or drag and drop</div>
+                    <div class="file-upload-hint">Supports .xlsx and .xls files</div>
+                </div>
+                <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFileSelect(event)">
+                <div id="selectedFile" class="selected-file" style="display: none;"></div>
+                
+                <div class="header-configuration" id="headerConfiguration">
+                    <h3>Configure Headers</h3>
+                    <div id="headerList" class="header-list">
+                        <!-- Headers will be populated dynamically -->
+                    </div>
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="addNewHeader()">Add New Header</button>
+                        <button class="btn-secondary" onclick="resetHeaders()">Reset Headers</button>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn-primary" onclick="processDocument()" id="processBtn" disabled>Upload and Process</button>
+                    <button class="btn-success" onclick="saveDocument()" id="saveBtn" disabled>Save</button>
+                    <button class="btn-warning" onclick="previewDocument()" id="previewBtn" disabled>Preview</button>
+                    <button class="btn-secondary" onclick="editDocument()" id="editBtn" disabled>Edit</button>
+                    <button class="btn-danger" onclick="deleteDocument()" id="deleteBtn" disabled>Delete</button>
+                </div>
+            </div>
+            
+            <!-- Document Type Forms -->
+            <div id="document-forms" style="display: none;">
+                <!-- Forms will be populated based on selected document type -->
+            </div>
+            
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <div class="results-header">
+                    <h3>Processing Results</h3>
+                </div>
+                <div id="resultsContent"></div>
+            </div>
+        </div>
+        
+        <!-- Document Types Tab -->
+        <div id="document-types-content" class="main-tab-content">
+            <div class="document-types-section">
+                <h2>Manage Document Types</h2>
+                
+                <div class="document-type-form">
+                    <h3>Add New Document Type</h3>
+                    <div class="form-group">
+                        <label for="docTypeName">Document Type Name:</label>
+                        <input type="text" id="docTypeName" placeholder="Enter document type name">
+                    </div>
+                    <div class="form-group">
+                        <label for="docTypeDescription">Description:</label>
+                        <input type="text" id="docTypeDescription" placeholder="Enter description">
+                    </div>
+                    <div class="form-group">
+                        <label for="docTypeFields">Required Fields (comma-separated):</label>
+                        <input type="text" id="docTypeFields" placeholder="e.g., PI Number, PI Date, LC Number">
+                    </div>
+                    <button class="btn-primary" onclick="addDocumentType()">Add Document Type</button>
+                </div>
+                
+                <div class="document-types-list" id="documentTypesList">
+                    <!-- Predefined document types -->
+                    <div class="document-type-item">
+                        <div class="document-type-info">
+                            <h4>Pro forma Invoice</h4>
+                            <p>Fields: PI Number, PI Date</p>
+                        </div>
+                        <div class="document-type-actions">
+                            <button class="action-btn edit" onclick="editDocumentType('proforma')">Edit</button>
+                            <button class="action-btn toggle" onclick="toggleDocumentType('proforma')">Active</button>
+                            <button class="action-btn delete" onclick="deleteDocumentType('proforma')">Delete</button>
+                        </div>
+                    </div>
+                    
+                    <div class="document-type-item">
+                        <div class="document-type-info">
+                            <h4>LC Document</h4>
+                            <p>Fields: LC Number, LC Date</p>
+                        </div>
+                        <div class="document-type-actions">
+                            <button class="action-btn edit" onclick="editDocumentType('lc')">Edit</button>
+                            <button class="action-btn toggle" onclick="toggleDocumentType('lc')">Active</button>
+                            <button class="action-btn delete" onclick="deleteDocumentType('lc')">Delete</button>
+                        </div>
+                    </div>
+                    
+                    <div class="document-type-item">
+                        <div class="document-type-info">
+                            <h4>Packing List</h4>
+                            <p>Fields: Commercial Invoice Number, Commercial Invoice Date, LC Number, B/L Number</p>
+                        </div>
+                        <div class="document-type-actions">
+                            <button class="action-btn edit" onclick="editDocumentType('packing')">Edit</button>
+                            <button class="action-btn toggle" onclick="toggleDocumentType('packing')">Active</button>
+                            <button class="action-btn delete" onclick="deleteDocumentType('packing')">Delete</button>
+                        </div>
+                    </div>
+                    
+                    <div class="document-type-item">
+                        <div class="document-type-info">
+                            <h4>Commercial Invoice</h4>
+                            <p>Fields: Commercial Invoice Number, Commercial Invoice Date, LC Number, B/L Number</p>
+                        </div>
+                        <div class="document-type-actions">
+                            <button class="action-btn edit" onclick="editDocumentType('commercial')">Edit</button>
+                            <button class="action-btn toggle" onclick="toggleDocumentType('commercial')">Active</button>
+                            <button class="action-btn delete" onclick="deleteDocumentType('commercial')">Delete</button>
+                        </div>
+                    </div>
+                    
+                    <div class="document-type-item">
+                        <div class="document-type-info">
+                            <h4>Value Sheet</h4>
+                            <p>Fields: LC Number, Bill of Entry Number, B/E Date</p>
+                        </div>
+                        <div class="document-type-actions">
+                            <button class="action-btn edit" onclick="editDocumentType('value')">Edit</button>
+                            <button class="action-btn toggle" onclick="toggleDocumentType('value')">Active</button>
+                            <button class="action-btn delete" onclick="deleteDocumentType('value')">Delete</button>
+                        </div>
+                    </div>
+                    
+                    <div class="document-type-item">
+                        <div class="document-type-info">
+                            <h4>Loading List</h4>
+                            <p>Fields: LC Number, Loading Date, Loading Port, Destination Port, Container Number, Total Carton, Total Weight</p>
+                        </div>
+                        <div class="document-type-actions">
+                            <button class="action-btn edit" onclick="editDocumentType('loading')">Edit</button>
+                            <button class="action-btn toggle" onclick="toggleDocumentType('loading')">Active</button>
+                            <button class="action-btn delete" onclick="deleteDocumentType('loading')">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- User Management Tab -->
+        <div id="user-management-content" class="main-tab-content">
+            <div class="user-level-tabs">
+                <div class="user-level-tab active" onclick="switchUserLevel('user')">User Section</div>
+                <div class="user-level-tab" onclick="switchUserLevel('admin')">Admin Section</div>
+                <div class="user-level-tab" onclick="switchUserLevel('developer')">Developer Section</div>
+            </div>
+            
+            <div id="user-level-content" class="user-level-content active">
+                <h3>User Section</h3>
+                <p>Basic document creation and processing features.</p>
+                <ul>
+                    <li>Create and process documents</li>
+                    <li>View document history</li>
+                    <li>Basic Excel processing</li>
+                </ul>
+            </div>
+            
+            <div id="admin-level-content" class="user-level-content">
+                <h3>Admin Section</h3>
+                <p>Advanced document management and user administration.</p>
+                <ul>
+                    <li>Manage document types</li>
+                    <li>User management</li>
+                    <li>System configuration</li>
+                    <li>Advanced reporting</li>
+                </ul>
+            </div>
+            
+            <div id="developer-level-content" class="user-level-content">
+                <h3>Developer Section</h3>
+                <p>System development and maintenance tools.</p>
+                <ul>
+                    <li>Database management</li>
+                    <li>API configuration</li>
+                    <li>System logs</li>
+                    <li>Custom integrations</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let currentDocumentType = null;
+        let currentUserLevel = 'user';
+        let headers = [];
+        let processedData = null;
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUserInterface();
+        });
+        
+        // Main tab switching
+        function switchMainTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.main-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.main-tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName + '-content').classList.add('active');
+        }
+        
+        // User level switching
+        function switchUserLevel(level) {
+            currentUserLevel = level;
+            
+            // Update tab buttons
+            document.querySelectorAll('.user-level-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update content
+            document.querySelectorAll('.user-level-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(level + '-level-content').classList.add('active');
+            
+            // Update user level indicator
+            document.getElementById('userLevelIndicator').textContent = `User Level: ${level.charAt(0).toUpperCase() + level.slice(1)}`;
+            
+            updateUserInterface();
+        }
+        
+        // Update UI based on user level
+        function updateUserInterface() {
+            const userManagementTab = document.getElementById('userManagementTab');
+            
+            if (currentUserLevel === 'admin' || currentUserLevel === 'developer') {
+                userManagementTab.style.display = 'block';
+            } else {
+                userManagementTab.style.display = 'none';
+            }
+        }
+        
+        // Document type selection
+        function selectDocumentType(type) {
+            currentDocumentType = type;
+            
+            // Update visual selection
+            document.querySelectorAll('.document-type-option').forEach(option => option.classList.remove('selected'));
+            document.querySelector(`[data-type="${type}"]`).classList.add('selected');
+            
+            // Show appropriate section
+            document.getElementById('excel-section').style.display = type === 'excel' ? 'block' : 'none';
+            document.getElementById('document-forms').style.display = type !== 'excel' ? 'block' : 'none';
+            
+            if (type !== 'excel') {
+                generateDocumentForm(type);
+            }
+        }
+        
+        // Generate form for specific document types
+        function generateDocumentForm(type) {
+            const formsContainer = document.getElementById('document-forms');
+            let formHTML = '';
+            
+            switch(type) {
+                case 'proforma':
+                    formHTML = `
+                        <h3>Pro forma Invoice</h3>
+                        <div class="form-group">
+                            <label>PI Number:</label>
+                            <input type="text" id="piNumber" placeholder="Enter PI Number">
+                        </div>
+                        <div class="form-group">
+                            <label>PI Date:</label>
+                            <input type="date" id="piDate">
+                        </div>
+                    `;
+                    break;
+                case 'lc':
+                    formHTML = `
+                        <h3>LC Document</h3>
+                        <div class="form-group">
+                            <label>LC Number:</label>
+                            <input type="text" id="lcNumber" placeholder="Enter LC Number">
+                        </div>
+                        <div class="form-group">
+                            <label>LC Date:</label>
+                            <input type="date" id="lcDate">
+                        </div>
+                    `;
+                    break;
+                case 'packing':
+                    formHTML = `
+                        <h3>Packing List</h3>
+                        <div class="form-group">
+                            <label>Commercial Invoice Number:</label>
+                            <input type="text" id="ciNumber" placeholder="Enter CI Number">
+                        </div>
+                        <div class="form-group">
+                            <label>Commercial Invoice Date:</label>
+                            <input type="date" id="ciDate">
+                        </div>
+                        <div class="form-group">
+                            <label>LC Number:</label>
+                            <input type="text" id="lcNumber" placeholder="Enter LC Number">
+                        </div>
+                        <div class="form-group">
+                            <label>B/L Number:</label>
+                            <input type="text" id="blNumber" placeholder="Enter B/L Number">
+                        </div>
+                    `;
+                    break;
+                case 'commercial':
+                    formHTML = `
+                        <h3>Commercial Invoice</h3>
+                        <div class="form-group">
+                            <label>Commercial Invoice Number:</label>
+                            <input type="text" id="ciNumber" placeholder="Enter CI Number">
+                        </div>
+                        <div class="form-group">
+                            <label>Commercial Invoice Date:</label>
+                            <input type="date" id="ciDate">
+                        </div>
+                        <div class="form-group">
+                            <label>LC Number:</label>
+                            <input type="text" id="lcNumber" placeholder="Enter LC Number">
+                        </div>
+                        <div class="form-group">
+                            <label>B/L Number:</label>
+                            <input type="text" id="blNumber" placeholder="Enter B/L Number">
+                        </div>
+                    `;
+                    break;
+                case 'value':
+                    formHTML = `
+                        <h3>Value Sheet</h3>
+                        <div class="form-group">
+                            <label>LC Number:</label>
+                            <input type="text" id="lcNumber" placeholder="Enter LC Number">
+                        </div>
+                        <div class="form-group">
+                            <label>Bill of Entry Number:</label>
+                            <input type="text" id="beNumber" placeholder="Enter B/E Number">
+                        </div>
+                        <div class="form-group">
+                            <label>B/E Date:</label>
+                            <input type="date" id="beDate">
+                        </div>
+                    `;
+                    break;
+                case 'loading':
+                    formHTML = `
+                        <h3>Loading List</h3>
+                        <div class="form-group">
+                            <label>LC Number:</label>
+                            <input type="text" id="lcNumber" placeholder="Enter LC Number">
+                        </div>
+                        <div class="form-group">
+                            <label>Loading Date:</label>
+                            <input type="date" id="loadingDate">
+                        </div>
+                        <div class="form-group">
+                            <label>Loading Port:</label>
+                            <input type="text" id="loadingPort" placeholder="Enter Loading Port">
+                        </div>
+                        <div class="form-group">
+                            <label>Destination Port:</label>
+                            <input type="text" id="destinationPort" placeholder="Enter Destination Port">
+                        </div>
+                        <div class="form-group">
+                            <label>Container Number:</label>
+                            <input type="text" id="containerNumber" placeholder="Enter Container Number">
+                        </div>
+                        <div class="form-group">
+                            <label>Total Carton:</label>
+                            <input type="number" id="totalCarton" placeholder="Enter Total Carton">
+                        </div>
+                        <div class="form-group">
+                            <label>Total Weight:</label>
+                            <input type="number" id="totalWeight" placeholder="Enter Total Weight">
+                        </div>
+                    `;
+                    break;
+            }
+            
+            formHTML += `
+                <div class="button-group">
+                    <button class="btn-primary" onclick="processDocument()">Process Document</button>
+                    <button class="btn-success" onclick="saveDocument()">Save</button>
+                    <button class="btn-warning" onclick="previewDocument()">Preview</button>
+                    <button class="btn-secondary" onclick="editDocument()">Edit</button>
+                    <button class="btn-danger" onclick="deleteDocument()">Delete</button>
+                </div>
+            `;
+            
+            formsContainer.innerHTML = formHTML;
+        }
+        
+        // File handling
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('selectedFile').style.display = 'block';
+                document.getElementById('selectedFile').textContent = `Selected: ${file.name}`;
+                document.getElementById('processBtn').disabled = false;
+                
+                // Show header configuration
+                loadFileHeaders(file);
+            }
+        }
+        
+        // Load file headers for configuration
+        async function loadFileHeaders(file) {
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const response = await fetch('/api/sheets/headers', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    headers = result.headers || [];
+                    displayHeaderConfiguration();
+                } else {
+                    // Fallback to default headers
+                    headers = ['ITEM', 'MODEL', 'QTY/CTN', 'CTNS', 'NW', 'GW'];
+                    displayHeaderConfiguration();
+                }
+            } catch (error) {
+                console.error('Error loading headers:', error);
+                headers = ['ITEM', 'MODEL', 'QTY/CTN', 'CTNS', 'NW', 'GW'];
+                displayHeaderConfiguration();
+            }
+        }
+        
+        // Display header configuration
+        function displayHeaderConfiguration() {
+            const headerList = document.getElementById('headerList');
+            const headerConfiguration = document.getElementById('headerConfiguration');
+            
+            headerList.innerHTML = '';
+            
+            headers.forEach((header, index) => {
+                const headerItem = document.createElement('div');
+                headerItem.className = 'header-item';
+                headerItem.innerHTML = `
+                    <h4>${header}</h4>
+                    <div class="header-actions">
+                        <button class="header-action-btn" onclick="toggleHeaderAction(${index}, 'keep')">Keep</button>
+                        <button class="header-action-btn" onclick="toggleHeaderAction(${index}, 'sum')">Sum</button>
+                        <button class="header-action-btn" onclick="toggleHeaderAction(${index}, 'subtotal')">Subtotal</button>
+                        <button class="header-action-btn" onclick="toggleHeaderAction(${index}, 'grandtotal')">Grand Total</button>
+                        <button class="header-action-btn" onclick="editHeader(${index})">Edit</button>
+                        <button class="header-action-btn" onclick="deleteHeader(${index})">Delete</button>
+                    </div>
+                `;
+                headerList.appendChild(headerItem);
+            });
+            
+            headerConfiguration.classList.add('active');
+        }
+        
+        // Header action functions
+        function toggleHeaderAction(index, action) {
+            const button = event.target;
+            button.classList.toggle('active');
+            
+            // Store the action for this header
+            if (!headers[index].actions) {
+                headers[index] = { name: headers[index], actions: [] };
+            }
+            
+            if (button.classList.contains('active')) {
+                if (!headers[index].actions.includes(action)) {
+                    headers[index].actions.push(action);
+                }
+            } else {
+                headers[index].actions = headers[index].actions.filter(a => a !== action);
+            }
+        }
+        
+        function editHeader(index) {
+            const newName = prompt('Enter new header name:', typeof headers[index] === 'string' ? headers[index] : headers[index].name);
+            if (newName) {
+                if (typeof headers[index] === 'string') {
+                    headers[index] = { name: newName, actions: [] };
+                } else {
+                    headers[index].name = newName;
+                }
+                displayHeaderConfiguration();
+            }
+        }
+        
+        function deleteHeader(index) {
+            if (confirm('Are you sure you want to delete this header?')) {
+                headers.splice(index, 1);
+                displayHeaderConfiguration();
+            }
+        }
+        
+        function addNewHeader() {
+            const newName = prompt('Enter header name:');
+            if (newName) {
+                headers.push({ name: newName, actions: [] });
+                displayHeaderConfiguration();
+            }
+        }
+        
+        function resetHeaders() {
+            headers = ['ITEM', 'MODEL', 'QTY/CTN', 'CTNS', 'NW', 'GW'];
+            displayHeaderConfiguration();
+        }
+        
+        // Document processing functions
+        async function processDocument() {
+            if (currentDocumentType === 'excel' && !selectedFile) {
+                alert('Please select a file first');
+                return;
+            }
+            
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            try {
+                resultsSection.style.display = 'block';
+                resultsContent.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Processing document...
+                    </div>
+                `;
+                
+                let response;
+                
+                if (currentDocumentType === 'excel') {
+                    const formData = new FormData();
+                    formData.append('file', selectedFile);
+                    formData.append('headers', JSON.stringify(headers));
+                    
+                    response = await fetch('/api/sheets/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                } else {
+                    // Process other document types
+                    const formData = collectFormData();
+                    response = await fetch(`/api/documents/${currentDocumentType}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                }
+                
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Processing failed');
+                }
+                
+                processedData = result;
+                displayResults(result);
+                enableActionButtons();
+                
+            } catch (error) {
+                resultsSection.style.display = 'block';
+                resultsContent.innerHTML = `
+                    <div class="error">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        function collectFormData() {
+            const formData = {};
+            const inputs = document.querySelectorAll('#document-forms input');
+            inputs.forEach(input => {
+                formData[input.id] = input.value;
+            });
+            return formData;
+        }
+        
+        function displayResults(result) {
+            const resultsContent = document.getElementById('resultsContent');
+            
+            if (currentDocumentType === 'excel') {
+                displayExcelResults(result);
+            } else {
+                displayDocumentResults(result);
+            }
+        }
+        
+        function displayExcelResults(result) {
+            const resultsContent = document.getElementById('resultsContent');
+            let html = '<div class="table-container"><table>';
+            
+            // Headers
+            if (result.data && result.data.length > 0) {
+                html += '<thead><tr>';
+                Object.keys(result.data[0]).forEach(key => {
+                    html += `<th>${key}</th>`;
+                });
+                html += '</tr></thead>';
+                
+                // Data rows
+                html += '<tbody>';
+                let currentItem = '';
+                
+                result.data.forEach(row => {
+                    if (row.ITEM !== currentItem) {
+                        currentItem = row.ITEM;
+                    }
+                    
+                    html += '<tr>';
+                    Object.values(row).forEach(value => {
+                        html += `<td>${value}</td>`;
+                    });
+                    html += '</tr>';
+                    
+                    // Add subtotal row if available
+                    if (result.subtotals && result.subtotals[row.ITEM]) {
+                        const subtotal = result.subtotals[row.ITEM];
+                        html += '<tr class="subtotal-row">';
+                        html += `<td colspan="3">Subtotal for ${row.ITEM}</td>`;
+                        html += `<td>${subtotal.CTNS || ''}</td>`;
+                        html += `<td>${subtotal.TOTAL || ''}</td>`;
+                        html += `<td>${subtotal['TOTAL NW'] || ''}</td>`;
+                        html += `<td>${subtotal['TOTAL GW'] || ''}</td>`;
+                        html += '</tr>';
+                    }
+                });
+                
+                // Grand total
+                if (result.grand_total) {
+                    const grandTotal = result.grand_total;
+                    html += '<tr class="grand-total-row">';
+                    html += '<td colspan="3">Grand Total</td>';
+                    html += `<td>${grandTotal.CTNS || ''}</td>`;
+                    html += `<td>${grandTotal.TOTAL || ''}</td>`;
+                    html += `<td>${grandTotal['TOTAL NW'] || ''}</td>`;
+                    html += `<td>${grandTotal['TOTAL GW'] || ''}</td>`;
+                    html += '</tr>';
+                }
+                
+                html += '</tbody>';
+            }
+            
+            html += '</table></div>';
+            resultsContent.innerHTML = html;
+        }
+        
+        function displayDocumentResults(result) {
+            const resultsContent = document.getElementById('resultsContent');
+            resultsContent.innerHTML = `
+                <div class="success">
+                    <strong>Success:</strong> ${currentDocumentType} document processed successfully.
+                </div>
+                <pre>${JSON.stringify(result, null, 2)}</pre>
+            `;
+        }
+        
+        function enableActionButtons() {
+            document.getElementById('saveBtn').disabled = false;
+            document.getElementById('previewBtn').disabled = false;
+            document.getElementById('editBtn').disabled = false;
+            document.getElementById('deleteBtn').disabled = false;
+        }
+        
+        // Action button functions
+        function saveDocument() {
+            if (!processedData) {
+                alert('No data to save. Please process a document first.');
+                return;
+            }
+            
+            // Implement save functionality
+            alert('Document saved successfully!');
+        }
+        
+        function previewDocument() {
+            if (!processedData) {
+                alert('No data to preview. Please process a document first.');
+                return;
+            }
+            
+            // Open preview in new window
+            const previewWindow = window.open('', '_blank');
+            previewWindow.document.write(`
+                <html>
+                    <head><title>Document Preview</title></head>
+                    <body>
+                        <h1>Document Preview</h1>
+                        <pre>${JSON.stringify(processedData, null, 2)}</pre>
+                    </body>
+                </html>
+            `);
+        }
+        
+        function editDocument() {
+            if (!processedData) {
+                alert('No data to edit. Please process a document first.');
+                return;
+            }
+            
+            // Implement edit functionality
+            alert('Edit mode activated!');
+        }
+        
+        function deleteDocument() {
+            if (!processedData) {
+                alert('No data to delete.');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to delete this document?')) {
+                processedData = null;
+                document.getElementById('resultsSection').style.display = 'none';
+                document.getElementById('saveBtn').disabled = true;
+                document.getElementById('previewBtn').disabled = true;
+                document.getElementById('editBtn').disabled = true;
+                document.getElementById('deleteBtn').disabled = true;
+                alert('Document deleted!');
+            }
+        }
+        
+        // Document type management functions
+        function addDocumentType() {
+            const name = document.getElementById('docTypeName').value;
+            const description = document.getElementById('docTypeDescription').value;
+            const fields = document.getElementById('docTypeFields').value;
+            
+            if (!name || !description || !fields) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Add to list
+            const listContainer = document.getElementById('documentTypesList');
+            const newItem = document.createElement('div');
+            newItem.className = 'document-type-item';
+            newItem.innerHTML = `
+                <div class="document-type-info">
+                    <h4>${name}</h4>
+                    <p>Fields: ${fields}</p>
+                </div>
+                <div class="document-type-actions">
+                    <button class="action-btn edit" onclick="editDocumentType('${name.toLowerCase()}')">Edit</button>
+                    <button class="action-btn toggle" onclick="toggleDocumentType('${name.toLowerCase()}')">Active</button>
+                    <button class="action-btn delete" onclick="deleteDocumentType('${name.toLowerCase()}')">Delete</button>
+                </div>
+            `;
+            listContainer.appendChild(newItem);
+            
+            // Clear form
+            document.getElementById('docTypeName').value = '';
+            document.getElementById('docTypeDescription').value = '';
+            document.getElementById('docTypeFields').value = '';
+            
+            alert('Document type added successfully!');
+        }
+        
+        function editDocumentType(type) {
+            alert(`Edit ${type} document type`);
+        }
+        
+        function toggleDocumentType(type) {
+            const button = event.target;
+            if (button.textContent === 'Active') {
+                button.textContent = 'Inactive';
+                button.classList.add('inactive');
+            } else {
+                button.textContent = 'Active';
+                button.classList.remove('inactive');
+            }
+        }
+        
+        function deleteDocumentType(type) {
+            if (confirm(`Are you sure you want to delete the ${type} document type?`)) {
+                event.target.closest('.document-type-item').remove();
+                alert('Document type deleted!');
+            }
+        }
+        
+        // Drag and drop functionality
+        const uploadArea = document.querySelector('.file-upload-area');
+        
+        if (uploadArea) {
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
+                        selectedFile = file;
+                        document.getElementById('selectedFile').style.display = 'block';
+                        document.getElementById('selectedFile').textContent = `Selected: ${file.name}`;
+                        document.getElementById('processBtn').disabled = false;
+                        loadFileHeaders(file);
+                    } else {
+                        alert('Please upload an Excel file (.xlsx or .xls)');
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
